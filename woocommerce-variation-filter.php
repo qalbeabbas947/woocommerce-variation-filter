@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name: Woocommerce Search Customizations
+ * Plugin Name: Woocommerce Variation Filter
  * Version: 1.0
  * Description:
  * Author: LDninjas.com
@@ -14,9 +14,9 @@
 if( ! defined( 'ABSPATH' ) ) exit;
 
 /**
- * Class LDNWOO_Search_Customizations
+ * Class LDNWOO_Vartion_Filter
  */
-class LDNWOO_Search_Customizations {
+class LDNWOO_Vartion_Filter {
 
     const VERSION = '1.0';
 
@@ -31,11 +31,10 @@ class LDNWOO_Search_Customizations {
      */
     public static function instance() {
 
-        if ( is_null( self::$instance ) && ! ( self::$instance instanceof LDNWOO_Search_Customizations ) ) {
+        if ( is_null( self::$instance ) && ! ( self::$instance instanceof LDNWOO_Vartion_Filter ) ) {
             self::$instance = new self;
 
             self::$instance->setup_constants();
-            self::$instance->hooks();
             self::$instance->includes();
         }
 
@@ -77,47 +76,9 @@ class LDNWOO_Search_Customizations {
          * Required all files 
          */
         
-        if( file_exists( LDNWOO_INCLUDES_DIR.'post-query.php' ) ) {
-            require_once LDNWOO_INCLUDES_DIR . 'post-query.php';
+        if( file_exists( LDNWOO_INCLUDES_DIR.'product-query.php' ) ) {
+            require_once LDNWOO_INCLUDES_DIR . 'product-query.php';
         } 
-    }
-
-    /**
-     * Plugin Hooks
-     */
-    public function hooks() {
-        add_action( 'pre_get_posts', [ $this, 'search_woocommerce_products'] );
-        add_filter( 'posts_search', [ $this, '_my_posts_search_function'], 12, 2);
-    }
-    function _my_posts_search_function($sql, $query)
-    {
-        global $wpdb;
-        $keyword = $query->get('s');
-        if (!$keyword || $sql == '') {
-            return $sql;
-        }
-    
-        $exploded = explode( " ", $keyword );
-        print_r($exploded);
-        $where = '';
-        foreach( $exploded as $str ) {
-            if( !empty($str) && $str!='–' ) {
-                $where .= ! empty( $where )?' and ':'';
-
-                $where .= " {$wpdb->posts}.post_title like '%".$str."%'";
-            }
-        }
-
-        return $sql = " and (".$where.")";
-        
-        
-    }
-    function search_woocommerce_products( $query ) {
-        if( ! is_admin() && is_search() && $query->is_main_query() ) {
-            if( $_REQUEST['post_type'] == 'product' ) {
-                $query->set( 'post_type', array( 'product', 'product_variation' ) );
-            }
-        }
     }
 }
 
@@ -147,6 +108,6 @@ function LDNWOO() {
         return false;
     }
 
-    return LDNWOO_Search_Customizations::instance();
+    return LDNWOO_Vartion_Filter::instance();
 }
 add_action( 'plugins_loaded', 'LDNWOO' );
